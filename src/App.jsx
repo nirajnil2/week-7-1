@@ -1,91 +1,61 @@
-import React , { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import './App.css';
-const Dashboard = lazy(() => import('./components/Dashboard'));
-const Landing = lazy(() => import('./components/Landing'));
-import { Countcontext } from './context';
-import { useContext , useState } from 'react';
+import React from 'react';
+import { RecoilRoot, useRecoilState, useRecoilValue } from 'recoil';
+import countAtom, { evenSelector } from './store/atoms/count';
 
+// Root App Component
 function App() {
-  
- /*  return (
+  return (
     <div>
-       <BrowserRouter>
-       <Appbar/>
-      <Routes>
-       <Route path="/landing" element={
-  <Suspense fallback={"Loading..."}>
-    <Landing />
-  </Suspense>
-} />
-        <Route path="/dashboard" element={
-  <Suspense fallback={"Loading..."}>
-    <Dashboard/>
-  </Suspense>
-} />
-      </Routes>
-    </BrowserRouter>
+      <RecoilRoot>
+        <Count />
+        <CountRenderer />
+      </RecoilRoot>
     </div>
   );
 }
-function Appbar(){
-  const navigate = useNavigate();
-  return (
-    <div>
-       <div style={{ }}>
-        <button onClick={()=>{
-          navigate("/Landing")
-        }}>LandinPage</button>
-        <button onClick={()=>{
-          navigate("/Dashboard")
-        }}>Dashboard</button>
-      </div>
-    </div>
-  )} */
 
-    const [count , setcount] = useState(0);
-    
-    return (
-      <div>
-       <Countcontext.Provider value={count} >
-        <Count  count={count} setcount={setcount} />
-        </Countcontext.Provider>
-      </div>
-    )
-}
-function Count({setcount}){
+// Count Component
+function Count() {
   return (
     <div>
-      <Countrenderer/>
-      <Button setcount={setcount} />
+      <Button />
+    </div>
+  );
+}
+
+// CountRenderer Component
+function CountRenderer() {
+  const count = useRecoilValue(countAtom);
+  return (
+    <div>
+      <p>{count}</p>
+      <EvenCountRenderer />
+    </div>
+  );
+}
+
+// EvenCountRenderer Component
+function EvenCountRenderer() {
+  const isEven = useRecoilValue(evenSelector);
+
+  return (
+    <div>
+      {isEven ? " It is even " : null}
     </div>
   )
+ 
 }
-function Countrenderer(){
-  const count = useContext(Countcontext);
+// Button Component
+function Button() {
+  const [count, setCount] = useRecoilState(countAtom);
+  console.log("Button re-render");
   return (
     <div>
-      count : {count}
+      <button onClick={() => setCount(count + 1)}>Increase</button>
+      <button onClick={() => setCount(count - 1)}>Decrease</button>
     </div>
-  )
+  );
 }
-function Button({setcount}){
-  const count = useContext(Countcontext);
-  return (
-    <div>
-      <button onClick={ ()=>{
-        setcount(count+1) ;
-      }}   > Increase
 
-      </button>
-      <button onClick={ ()=>{
-        setcount(count-1) ;
-      }}   > Decrease 
-
-      </button>
-
-    </div>
-  )
-}
 export default App;
 
